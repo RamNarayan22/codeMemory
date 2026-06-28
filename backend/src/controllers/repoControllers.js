@@ -1,5 +1,5 @@
-import Repo from '../models/Repo.js';
-import Commit from '../models/Commit.js';
+import Repo from '../models/repo.js';
+import Commit from '../models/commit.js';
 import { cloneAndExtractCommits } from '../services/gitService.js';
 import { embedCommits } from '../services/embeddingService.js';
 import mongoose from 'mongoose';

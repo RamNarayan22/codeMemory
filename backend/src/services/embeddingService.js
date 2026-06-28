@@ -1,6 +1,6 @@
 import { ChromaClient } from 'chromadb';
 import { pipeline } from '@xenova/transformers';
-import Commit from '../models/Commit.js';
+import Commit from '../models/commit.js';
 
 const chroma = new ChromaClient({ path: 'http://localhost:8001' });
 
