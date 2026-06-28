@@ -9,7 +9,7 @@ services:
       - key: PORT
         value: 8000
       - key: MONGO_URI
-        value: "mongodb+srv://username:password@cluster.mongodb.net/codeMemory"
+        value: "mongodb+srv://ramnot69_db_user:YAqAegM6gF1vurFx@cluster0.rtnkmim.mongodb.net/codeMemory"
         sync: false
       - key: NODE_ENV
         value: production
