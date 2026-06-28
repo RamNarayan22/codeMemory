@@ -9,11 +9,14 @@ services:
       - key: PORT
         value: 8000
       - key: MONGO_URI
-        fromDatabase:
-          name: codememory-mongo
-          property: connectionString
+        value: "mongodb+srv://username:password@cluster.mongodb.net/codeMemory"
+        sync: false
       - key: NODE_ENV
         value: production
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: GROQ_API_KEY
+        sync: false
 
   # Frontend Service
   - type: web
@@ -27,9 +30,3 @@ services:
           type: web
           name: codememory-backend
           property: url
-
-# MongoDB Database
-databases:
-  - name: codememory-mongo
-    databaseName: codeMemory
-    user: codememory
