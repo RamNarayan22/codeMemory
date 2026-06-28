@@ -10,5 +10,5 @@ const commitModel= new mongoose.Schema({
   embedding: { type: [Number], default: undefined },
 });
 
-const commitSchema = new mongoose.model('commit',commitModel)
+const commitSchema = mongoose.model('commit',commitModel)
 export  default commitSchema
