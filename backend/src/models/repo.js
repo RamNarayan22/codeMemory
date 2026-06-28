@@ -18,4 +18,4 @@ const repoModel = new mongoose.Schema({
 
 
 const repoSchema= mongoose.model('Repo',repoModel)
-export default repoSchemaa
+export default repoSchema
