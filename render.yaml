@@ -12,10 +12,6 @@ services:
         value: "mongodb+srv://ramnot69_db_user:YAqAegM6gF1vurFx@cluster0.rtnkmim.mongodb.net/codeMemory"
       - key: NODE_ENV
         value: production
-      - key: OPENAI_API_KEY
-        generateValue: true
-      - key: GROQ_API_KEY
-        generateValue: true
 
   # Frontend Service
   - type: web
