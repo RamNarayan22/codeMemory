@@ -1,0 +1,161 @@
+/* index.css - Dark theme and utility classes */
+:root {
+  --color-bg: #0d1117; /* GitHub dark */
+  --color-text: #e6edf3;
+  --color-text-secondary: #8b949e;
+  --color-accent: #238636; /* green */
+  --color-link: #58a6ff; /* blue */
+  --color-border: #30363d;
+  --font-body: system-ui, -apple-system, sans-serif;
+}
+
+/* Global resets */
+body {
+  margin: 0;
+  font-family: var(--font-body);
+  background-color: var(--color-bg);
+  color: var(--color-text);
+}
+
+a {
+  color: var(--color-link);
+  text-decoration: none;
+}
+a:hover {
+  text-decoration: underline;
+}
+
+/* Card styling */
+.card {
+  background-color: #161b22; /* slightly lighter than bg */
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  padding: 1rem;
+  margin: 1rem 0;
+}
+
+/* Input styling */
+.input-field {
+  width: 100%;
+  padding: 0.5rem;
+  background-color: #161b22;
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  color: var(--color-text);
+  margin-top: 0.5rem;
+}
+.input-field::placeholder {
+  color: var(--color-text-secondary);
+}
+.input-field.readonly {
+  background-color: #0d1117;
+}
+
+/* Primary button */
+.btn-primary {
+  background-color: var(--color-accent);
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  margin-top: 0.5rem;
+}
+.btn-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Progress dots */
+@keyframes blink {
+  0% { opacity: 0.2; }
+  20% { opacity: 1; }
+  100% { opacity: 0.2; }
+}
+.progress-dots span {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  margin: 0 2px;
+  background-color: var(--color-text);
+  border-radius: 50%;
+  animation: blink 1.4s infinite;
+}
+.progress-dots span:nth-child(2) { animation-delay: 0.2s; }
+.progress-dots span:nth-child(3) { animation-delay: 0.4s; }
+
+/* Comment box (answer) */
+.comment-box {
+  background-color: #161b22;
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  padding: 0.75rem;
+  white-space: pre-wrap;
+}
+
+/* Commit list */
+.commit-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.commit-item {
+  display: flex;
+  align-items: center;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid var(--color-border);
+}
+.commit-hash {
+  font-family: monospace;
+  color: var(--color-link);
+  margin-right: 0.5rem;
+}
+.commit-message {
+  font-weight: 600;
+  flex: 1;
+  color: var(--color-text);
+}
+.commit-author {
+  display: flex;
+  align-items: center;
+  color: var(--color-text-secondary);
+  font-size: 0.85rem;
+}
+.commit-author img {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  margin-right: 0.3rem;
+}
+.commit-date {
+  margin-left: 0.5rem;
+  color: var(--color-text-secondary);
+}
+
+/* Layout container */
+.app-container {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+/* Ingestion and feedback status messages */
+.status {
+  margin-top: 0.75rem;
+  font-size: 0.9rem;
+  color: var(--color-text-secondary);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.status.success {
+  color: #3fb950; /* GitHub green */
+}
+.status.error {
+  color: #f85149; /* GitHub red */
+}
+
+

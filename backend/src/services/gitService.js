@@ -10,7 +10,14 @@ export const cloneAndExtractCommits = async (repoUrl, limit = 200) => {
   const git = simpleGit();
 
   console.log(`Cloning ${repoUrl} into ${tempDir}...`);
-  await git.clone(repoUrl, tempDir, ['--depth', '500']);
+
+  try {
+    await git.clone(repoUrl, tempDir, ['--depth', '500']);
+  } catch (err) {
+    // Edge case 7: clean up temp folder even if clone fails
+    fs.rmSync(tempDir, { recursive: true, force: true });
+    throw new Error(`Failed to clone repository. Check that the URL is correct and the repo is public. (${err.message})`);
+  }
 
   const repoGit = simpleGit(tempDir);
   const log = await repoGit.log({ maxCount: limit });
@@ -26,7 +33,7 @@ export const cloneAndExtractCommits = async (repoUrl, limit = 200) => {
         .map(line => line.split('|')[0].trim())
         .filter(line => line.length > 0 && !line.includes('changed'));
     } catch (err) {
-      // first commit has no parent to diff against
+      // first commit has no parent to diff against — silently skip
     }
 
     commits.push({
@@ -38,6 +45,7 @@ export const cloneAndExtractCommits = async (repoUrl, limit = 200) => {
     });
   }
 
+  // Always clean up temp folder after successful extraction
   fs.rmSync(tempDir, { recursive: true, force: true });
 
   return commits;
