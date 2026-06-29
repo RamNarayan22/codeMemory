@@ -2,7 +2,6 @@
 
 This repository implements a **Node.js/Express** backend that stores information about Git repositories and their commits in MongoDB.  Below is a complete, line‑by‑line explanation of every source file present in the project.  Use this README as a reference when you start adding features, fixing bugs, or extending the architecture.
 
----
 
 ## Table of Contents
 1. [package.json](#packagejson)
