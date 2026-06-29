@@ -22,7 +22,8 @@ function App() {
   const pollIntervalRef = useRef(null);
 
   const ingestRepo = async () => {
-    if (!repoUrl) return;
+    const cleanUrl = repoUrl.trim();
+    if (!cleanUrl) return;
 
     // Edge case 6: clear any existing polling interval before starting a new ingestion
     if (pollIntervalRef.current) {
@@ -39,7 +40,7 @@ function App() {
     setQuestion('');
 
     try {
-      const resp = await axios.post(`${import.meta.env.VITE_API_BASE}/api/v1/repos`, { url: repoUrl });
+      const resp = await axios.post(`${import.meta.env.VITE_API_BASE}/api/v1/repos`, { url: cleanUrl });
       const newRepoId = resp.data.repoId ?? resp.data._id;
       if (!newRepoId) {
         throw new Error('Server did not return a repository identifier');

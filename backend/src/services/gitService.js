@@ -20,29 +20,53 @@ export const cloneAndExtractCommits = async (repoUrl, limit = 200) => {
   }
 
   const repoGit = simpleGit(tempDir);
-  const log = await repoGit.log({ maxCount: limit });
-
   const commits = [];
 
-  for (const entry of log.all) {
-    let filesChanged = [];
-    try {
-      const diffSummary = await repoGit.show([entry.hash, '--stat', '--format=']);
-      filesChanged = diffSummary
-        .split('\n')
-        .map(line => line.split('|')[0].trim())
-        .filter(line => line.length > 0 && !line.includes('changed'));
-    } catch (err) {
-      // first commit has no parent to diff against — silently skip
-    }
+  try {
+    const rawLog = await repoGit.raw([
+      'log',
+      `-n`,
+      `${limit}`,
+      '--name-only',
+      '--pretty=format:===COMMIT===:%H%n===AUTHOR===:%an%n===DATE===:%ad%n===MSG===:%s'
+    ]);
 
-    commits.push({
-      hash: entry.hash,
-      message: entry.message,
-      author: entry.author_name,
-      date: new Date(entry.date),
-      filesChanged,
-    });
+    const lines = rawLog.split('\n');
+    let currentCommit = null;
+
+    for (let line of lines) {
+      line = line.trim();
+      if (!line) continue;
+
+      if (line.startsWith('===COMMIT===:')) {
+        if (currentCommit) {
+          commits.push(currentCommit);
+        }
+        currentCommit = {
+          hash: line.substring(13),
+          message: '',
+          author: '',
+          date: null,
+          filesChanged: []
+        };
+      } else if (currentCommit) {
+        if (line.startsWith('===AUTHOR===:')) {
+          currentCommit.author = line.substring(13);
+        } else if (line.startsWith('===DATE===:')) {
+          currentCommit.date = new Date(line.substring(11));
+        } else if (line.startsWith('===MSG===:')) {
+          currentCommit.message = line.substring(10);
+        } else {
+          currentCommit.filesChanged.push(line);
+        }
+      }
+    }
+    if (currentCommit) {
+      commits.push(currentCommit);
+    }
+  } catch (err) {
+    fs.rmSync(tempDir, { recursive: true, force: true });
+    throw new Error(`Failed to extract commits. (${err.message})`);
   }
 
   // Always clean up temp folder after successful extraction

@@ -21,20 +21,22 @@ export const ingestRepo = async (req, res) => {
   // Edge case 1: Missing URL
   if (!url) return res.status(400).json({ error: 'Repo URL is required' });
 
+  const cleanUrl = url.trim();
+
   // Edge case 1b: Invalid URL format
-  if (!isValidGitUrl(url)) {
+  if (!isValidGitUrl(cleanUrl)) {
     return res.status(400).json({ error: 'Invalid repository URL. Please provide a valid http/https Git URL.' });
   }
 
   try {
-    const repoName = url.split('/').pop().replace('.git', '');
-    const repo = await Repo.create({ url, name: repoName, status: 'ingesting' });
+    const repoName = cleanUrl.split('/').pop().replace('.git', '');
+    const repo = await Repo.create({ url: cleanUrl, name: repoName, status: 'ingesting' });
 
     res.status(202).json({ message: 'Ingestion started', repoId: repo._id });
 
     try {
       // Step 1: clone and extract commits
-      const commits = await cloneAndExtractCommits(url, 200);
+      const commits = await cloneAndExtractCommits(cleanUrl, 200);
 
       // Edge case: repo exists but has no commits (e.g. empty repo)
       if (commits.length === 0) {
