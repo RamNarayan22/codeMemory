@@ -40,7 +40,10 @@ function App() {
 
     try {
       const resp = await axios.post('/api/v1/repos', { url: repoUrl });
-      const newRepoId = resp.data.repoId;
+      const newRepoId = resp.data.repoId ?? resp.data._id;
+      if (!newRepoId) {
+        throw new Error('Server did not return a repository identifier');
+      }
       setRepoId(newRepoId);
       pollStatus(newRepoId);
     } catch (e) {
