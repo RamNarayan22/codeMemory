@@ -1,44 +1,43 @@
 import Groq from 'groq-sdk';
-import { ChromaClient } from 'chromadb';
 import { generateEmbedding } from './embeddingService.js';
+import Commit from '../models/commit.js';
 
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
-const chroma = new ChromaClient({ path: 'http://localhost:8001' });
+
+const dotProduct = (a, b) => {
+  let sum = 0;
+  const len = a.length;
+  for (let i = 0; i < len; i++) {
+    sum += a[i] * b[i];
+  }
+  return sum;
+};
 
 export const askQuestion = async (repoId, question) => {
   const questionEmbedding = await generateEmbedding(question);
 
-  // Edge case 3: collection may not exist if embedding step failed
-  let collection;
-  try {
-    collection = await chroma.getCollection({
-      name: `repo_${repoId.toString()}`,
-      embeddingFunction: null,
-    });
-  } catch (err) {
+  // Fetch all commits for this repository that have embeddings
+  const commits = await Commit.find({ repoId, embedding: { $exists: true, $ne: [] } });
+
+  if (commits.length === 0) {
     throw new Error(
       'This repository has not been indexed yet, or indexing failed. Please re-ingest the repository.'
     );
   }
 
-  // Edge case 4: nResults cannot exceed the total number of stored commits
-  const countResult = await collection.count();
-  const nResults = Math.min(5, countResult);
-
-  if (nResults === 0) {
-    throw new Error('No commits are indexed for this repository. Please re-ingest.');
-  }
-
-  const results = await collection.query({
-    queryEmbeddings: [questionEmbedding],
-    nResults,
+  // Calculate similarity scores for all commits
+  const scoredCommits = commits.map(commit => {
+    const score = dotProduct(questionEmbedding, commit.embedding);
+    return { commit, score };
   });
 
-  const relevantCommits = results.metadatas[0];
+  // Sort by score descending and take top 5
+  scoredCommits.sort((a, b) => b.score - a.score);
+  const relevantCommits = scoredCommits.slice(0, 5).map(sc => sc.commit);
 
   // Build context string from the matching commits
   const context = relevantCommits
-    .map((commit, i) => `Commit ${i + 1}: ${commit.message} | Files: ${commit.filesChanged}`)
+    .map((commit, i) => `Commit ${i + 1}: ${commit.message} | Files: ${commit.filesChanged.join(', ')}`)
     .join('\n');
 
   const prompt = `You are a helpful assistant answering questions about a codebase based on git commit history.\n\nRelevant commits:\n${context}\n\nQuestion: "${question}"\n\nAnswer specifically and cite commit messages. If the commits are not relevant to the question, say so clearly instead of guessing.`;
@@ -58,7 +57,7 @@ export const askQuestion = async (repoId, question) => {
       message: c.message,
       author: c.author,
       date: c.date,
-      filesChanged: c.filesChanged,
+      filesChanged: Array.isArray(c.filesChanged) ? c.filesChanged : (c.filesChanged ? [c.filesChanged] : []),
     })),
   };
 };

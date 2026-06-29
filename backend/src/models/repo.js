@@ -14,6 +14,7 @@ const repoModel = new mongoose.Schema({
         default:"Pending"
     },
     commitCount: { type: Number, default: 0 },
+    errorMessage: { type: String },
 },{timestamps:true})
 
 

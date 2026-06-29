@@ -1,8 +1,5 @@
-import { ChromaClient } from 'chromadb';
 import { pipeline } from '@xenova/transformers';
 import Commit from '../models/commit.js';
-
-const chroma = new ChromaClient({ path: 'http://localhost:8001' });
 
 let embedder = null;
 
@@ -29,30 +26,18 @@ export const embedCommits = async (repoId) => {
     return;
   }
 
-  const collection = await chroma.getOrCreateCollection({
-    name: `repo_${repoId.toString()}`,
-    embeddingFunction: null,
-  });
-
   console.log(`Embedding ${commits.length} commits...`);
 
   for (let i = 0; i < commits.length; i++) {
     const commit = commits[i];
-    const text = `Commit message: ${commit.message}\nFiles changed: ${commit.filesChanged.join(', ')}`;
-    const embedding = await generateEmbedding(text);
-
-    await collection.add({
-      ids: [commit._id.toString()],
-      embeddings: [embedding],
-      documents: [text],
-      metadatas: [{
-        hash: commit.hash,
-        message: commit.message,
-        author: commit.author,
-        date: commit.date.toISOString(),
-        filesChanged: commit.filesChanged.join(', '),
-      }],
-    });
+    
+    // Only generate embedding if it doesn't exist
+    if (!commit.embedding || commit.embedding.length === 0) {
+      const text = `Commit message: ${commit.message}\nFiles changed: ${commit.filesChanged.join(', ')}`;
+      const embedding = await generateEmbedding(text);
+      commit.embedding = embedding;
+      await commit.save();
+    }
 
     if (i % 20 === 0) console.log(`Embedded ${i}/${commits.length}`);
   }
