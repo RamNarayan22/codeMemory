@@ -39,7 +39,7 @@ function App() {
     setQuestion('');
 
     try {
-      const resp = await axios.post('/api/v1/repos', { url: repoUrl });
+      const resp = await axios.post(`${import.meta.env.VITE_API_BASE}/api/v1/repos`, { url: repoUrl });
       const newRepoId = resp.data.repoId ?? resp.data._id;
       if (!newRepoId) {
         throw new Error('Server did not return a repository identifier');
@@ -59,7 +59,7 @@ function App() {
   const pollStatus = (id) => {
     const interval = setInterval(async () => {
       try {
-        const resp = await axios.get(`/api/v1/repos/${id}`);
+        const resp = await axios.get(`${import.meta.env.VITE_API_BASE}/api/v1/repos/${id}`);
         const status = resp.data.status;
         setIngestionStatus(status);
         if (status === 'ready') {
@@ -91,7 +91,7 @@ function App() {
     setAnswer('');
     setCommits([]);
     try {
-      const resp = await axios.post('/api/v1/ask', { repoId, question });
+      const resp = await axios.post(`${import.meta.env.VITE_API_BASE}/api/v1/ask`, { repoId, question });
       setAnswer(resp.data.answer);
       setCommits(resp.data.sourceCommits || []);
     } catch (e) {

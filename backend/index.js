@@ -3,11 +3,12 @@ import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import connectDB from './src/config/db.js';
 import repoRoute from './src/routes/repoRoutes.js'; import askRoute from './src/routes/askRoutes.js';
-
+import cors from 'cors';
 
 dotenv.config();
 
 const app = express();
+app.use(cors({ origin: process.env.FRONTEND_ORIGIN || 'https://codememory-frontend.onrender.com', credentials: true }));
 app.use(express.json());
 const PORT = process.env.PORT
 
