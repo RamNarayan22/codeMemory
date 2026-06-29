@@ -8,7 +8,23 @@ import cors from 'cors';
 dotenv.config();
 
 const app = express();
-app.use(cors({ origin: process.env.FRONTEND_ORIGIN || 'https://codememory-frontend.onrender.com', credentials: true }));
+const allowedOrigins = [
+  'https://codememory.onrender.com',
+  'https://codememory-frontend.onrender.com',
+  'http://localhost:5173',
+  process.env.FRONTEND_ORIGIN
+].filter(Boolean);
+
+app.use(cors({
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true
+}));
 app.use(express.json());
 const PORT = process.env.PORT
 
